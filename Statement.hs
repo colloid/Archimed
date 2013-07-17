@@ -9,6 +9,7 @@ import qualified Configuration as Conf
 
 type Expression = Expr.Expression
 
+{-- type definition --}
 data Statement =
       Skip
     | Assign        String Expression
@@ -17,8 +18,9 @@ data Statement =
     | IfThen        Expression [Statement] [Statement]
     | WhileDo       Expression [Statement]
     | Block         [Statement]      
-    deriving (Eq, Show, Read)
+    deriving (Eq, Read)
 
+{-- evaluate --}
 evaluate stmt conf = let evaluate' = flip evaluate 
                      in  case stmt of
     Skip            -> conf
@@ -30,3 +32,28 @@ evaluate stmt conf = let evaluate' = flip evaluate
     WhileDo e s     -> if Expr.evaluate e conf == 0 then conf
                                                     else evaluate stmt (foldl evaluate' conf s)
     Block b         -> foldl evaluate' conf b
+
+{-- instance Show --}
+instance Show Statement where 
+    show x = show' 0 x
+
+indentations = cycle ["    "]
+gosub indent stmts = concat $ map (show' indent) stmts
+
+show' indent stmt = let prefix = concat $ take indent indentations
+                    in  case stmt of
+    Skip            -> prefix ++ "skip\n"
+    Assign id expr  -> prefix ++ id ++ " := " ++ show expr ++ "\n"
+    Read id         -> prefix ++ "read " ++ id ++ "\n"
+    Write id        -> prefix ++ "write " ++ id ++ "\n"
+    IfThen e st sf  -> prefix ++ "if " ++ show e ++ " then\n" ++
+                            gosub (indent + 1) st ++
+                            prefix ++ "else\n" ++
+                            gosub (indent + 1) sf ++
+                            prefix ++ "end\n"
+    WhileDo e stmt  -> prefix ++ "while " ++ show e ++ " do\n" ++
+                            gosub (indent + 1) stmt ++
+                            prefix ++ "end\n"
+    Block stmt      -> prefix ++ "begin\n" ++
+                            gosub (indent + 1) stmt ++
+                            prefix ++ "end\n"

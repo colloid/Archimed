@@ -17,3 +17,4 @@ run input handle = do
     s <- hGetContents handle
     let ast = parse $ scan s
     putStrLn $ show $ output $ evaluate ast $ new input
+    putStr $ show ast
