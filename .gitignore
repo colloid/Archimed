@@ -5,3 +5,8 @@ cabal-dev
 *.chi
 *.chs.h
 .virthualenv
+Main
+Lexer.hs
+Parser.hs
+*.swp
+*.swo
