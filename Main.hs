@@ -6,6 +6,7 @@ import Lexer
 import Parser
 import Configuration
 import Statement
+import Ast
 
 main = do
     params <- getArgs
@@ -15,6 +16,7 @@ main = do
 
 run input handle = do
     s <- hGetContents handle
-    let ast = parse $ scan s
+    let ast0 = parse $ scan s
+        ast = normalize ast0
     putStrLn $ show $ output $ evaluate ast $ new input
     putStr $ show ast

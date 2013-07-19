@@ -1,6 +1,9 @@
-all: Main
-	
-Main: Main.hs Parser.hs Lexer.hs Statement.hs Expression.hs Configuration.hs
+ProgName = Main
+Sources = Main.hs Parser.hs Lexer.hs Statement.hs Expression.hs Configuration.hs Ast.hs
+
+all: $(ProgName)
+
+$(ProgName): $(Sources)
 	ghc -o $@ $<
 
 Parser.hs: Parser.y

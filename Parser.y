@@ -69,7 +69,7 @@ Write
     : write id          { Write $2 }
 
 Block
-    : begin StmtList end    { blockDispatch $2 }
+    : begin StmtList end    { Block $2 }
 
 Skip
     : skip              { Skip }
@@ -97,8 +97,3 @@ Expr
     | Expr "<" Expr     { Less $1 $3 }
     | "!" Expr          { Negate $2 }
  
-{
-blockDispatch p = case p of
-    [ x ] -> x
-    x     -> Block x
-}
