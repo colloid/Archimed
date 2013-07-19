@@ -5,7 +5,7 @@ cabal-dev
 *.chi
 *.chs.h
 .virthualenv
-Main
+archimed
 Lexer.hs
 Parser.hs
 *.swp
