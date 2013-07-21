@@ -21,11 +21,15 @@ undef var = error $ "Undefined variable " ++ var
 new vector = Configuration { state = undef, input = vector, output = [] }
 
 readInput id conf = Configuration { state = new_state, 
-                                    input = tail in_vec,
+                                    input = tail' in_vec,
                                     output = output conf
                                   } where
                 in_vec = input conf
-                new_state x = if x == id then head in_vec else state conf x
+                new_state x = if x == id then head' in_vec else state conf x
+                head' [] = error "not enough input data"
+                head' (x:xs) = x
+                tail' [] = head' []
+                tail' (x:xs) = xs
 
 evaluateVariable id conf = state conf id
 

@@ -39,6 +39,10 @@ execute params handle = do
 
 execute' (Run progname input) ast = do
     let res = show $ output $ evaluate ast $ new input
+    let conf = evaluate ast $ new input
+        res  = case Configuration.input conf of
+            [] -> show $ output conf
+            _  -> error "too many input data"
     putStrLn res
 
 execute' (Mix progname input) ast = do
