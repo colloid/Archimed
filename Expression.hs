@@ -32,7 +32,7 @@ fromBool True  = 1
 fromBool False = 0
 
 evaluate (Literal  l) conf = l
-evaluate (Variable v) conf = Conf.state conf v
+evaluate (Variable v) conf = Conf.evaluateVariable v conf
 
 evaluate (Plus           el er) conf    = (evaluate el conf) + (evaluate er conf)
 evaluate (Minus          el er) conf    = (evaluate el conf) - (evaluate er conf)
