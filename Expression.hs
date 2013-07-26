@@ -1,9 +1,11 @@
 module Expression (
     Expression(..),
-    evaluate
+    evaluate,
+    mix
 ) where
 
 import qualified Configuration as Conf
+type Input = Conf.Input
 
 {-- type definition --}
 data Expression =
@@ -31,8 +33,10 @@ data Expression =
 fromBool True  = 1
 fromBool False = 0
 
-evaluate (Literal  l) conf = l
-evaluate (Variable v) conf = Conf.evaluateVariable v conf
+evaluate (Literal  i) conf = i
+evaluate (Variable v) conf = let value = Conf.evaluateVariable v conf
+                             in case value of
+                                (Conf.Def i) -> i
 
 evaluate (Plus           el er) conf    = (evaluate el conf) + (evaluate er conf)
 evaluate (Minus          el er) conf    = (evaluate el conf) - (evaluate er conf)
@@ -49,6 +53,36 @@ evaluate (NotEqual       el er) conf    = fromBool $ (evaluate el conf) /= (eval
 --}
 evaluate (Less           el er) conf    = fromBool $ (evaluate el conf) <  (evaluate er conf)
 evaluate (Negate         expr)  conf    = fromBool $ (evaluate expr conf) == 0
+
+
+{-- mix --}
+mix (Literal        l) conf = Literal l
+mix (Variable       v) conf = let value = Conf.evaluateVariable v conf
+                              in case value of
+                                  (Conf.Def i) -> Literal  i
+                                  (Conf.Undef) -> Variable v
+
+mix (Plus       el er) conf = mix' $ Plus   (mix el conf) (mix er conf)
+mix (Minus      el er) conf = mix' $ Minus  (mix el conf) (mix er conf)
+mix (Times      el er) conf = mix' $ Times  (mix el conf) (mix er conf)
+mix (Divide     el er) conf = mix' $ Divide (mix el conf) (mix er conf)
+mix (Modulo     el er) conf = mix' $ Modulo (mix el conf) (mix er conf)
+
+mix (Less       el er) conf = mix' $ Less   (mix el conf) (mix er conf)
+mix (Negate      expr) conf = mix' $ Negate $ mix expr conf
+
+
+mix' (Plus      (Literal ll) (Literal lr)) = Literal (ll + lr)
+mix' (Minus     (Literal ll) (Literal lr)) = Literal (ll - lr)
+mix' (Times     (Literal ll) (Literal lr)) = Literal (ll * lr)
+mix' (Divide    (Literal ll) (Literal lr)) = Literal (ll `div` lr)
+mix' (Modulo    (Literal ll) (Literal lr)) = Literal (ll `mod` lr)
+
+mix' (Less      (Literal ll) (Literal lr)) = Literal $ fromBool $ ll < lr
+mix' (Negate    (Literal ll))              = Literal $ fromBool $ ll == 0
+
+mix' x = x
+
 
 {-- instance Show --}
 data Rank = RnkLess 

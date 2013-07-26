@@ -16,7 +16,7 @@ usage = concat
     ]    
 
 data Param = Run String [Int]
-           | Mix String [Int]
+           | Mix String [Input]
            | Opt String
 
 getPName (Run n _) = n
@@ -38,15 +38,14 @@ execute params handle = do
     execute' params ast
 
 execute' (Run progname input) ast = do
-    let res = show $ output $ evaluate ast $ new input
-    let conf = evaluate ast $ new input
+    let conf = evaluate ast $ new $ map Def input
         res  = case Configuration.input conf of
             [] -> show $ output conf
             _  -> error "too many input data"
     putStrLn res
 
 execute' (Mix progname input) ast = do
-    let res = show $ output $ evaluate ast $ new input
+    let res = show $ normalize $ fst $ mix ast $ new input
     putStrLn res
 
 execute' (Opt progname) ast = do
